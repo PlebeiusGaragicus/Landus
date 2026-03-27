@@ -1,0 +1,3 @@
+[submodule "games/game-donttouchme"]
+	path = games/game-donttouchme
+	url = git@github.com:PlebeiusGaragicus/game-donttouchme.git

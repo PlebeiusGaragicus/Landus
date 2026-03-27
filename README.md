@@ -1,19 +1,52 @@
 # Landus
 
-This repo handles an arcade system.  It should be structured as such:
+Arcade cabinet system. Launcher selects and runs games; each game is a self-contained git submodule.
 
-this main `Landus/` folder is the main repo - it holds the "system" code and has submodules (one for each game).  We need a docs/ folder as well which can be plain markdown files.  Each submodule game also needs a docs/ folder of the same.  The docs should be written for agent/AI consumption first - avoid verbosity and write for easy system retrieval.
+## Repo Structure
 
-We must include our first game to this repo: git@github.com:PlebeiusGaragicus/game-donttouchme.git
+```
+Landus/
+├── src/                  # Launcher source (Python / Arcade library)
+│   ├── main.py           # Entry point
+│   ├── config.py         # Platform detection, key mappings
+│   ├── launcher.py       # Game selection UI (arcade.View)
+│   ├── input_handler.py  # Unified input abstraction
+│   ├── process_manager.py# Spawn/monitor/kill game subprocesses
+│   ├── audio.py          # Theme song playback
+│   └── watchdog.py       # Freeze/crash detection
+├── assets/               # Launcher assets (fonts, backgrounds)
+├── games/                # Game submodules (one dir per game)
+│   └── game-donttouchme/ # First game
+├── docs/                 # System documentation
+├── AGENTS.md             # Agent instructions
+└── requirements.txt      # arcade
+```
 
-This README file should be edited - again, for agent consumption.  Write skills and/or agents.md files as needed.
+## Setup
 
-The agent should handle all development steps, as directed by the human (important: game testing should be handled only by the human and the human will run the game on their own as needed without prompting)
+```bash
+git clone --recurse-submodules <repo-url>
+pip install -r requirements.txt
+```
 
-Each game may use a different language / game engine / design.
+## Run (dev)
 
-Our arcade will run on debian for production and MacOS for testing.  Our arcade system needs to load on startup and should take the full screen (but be window'ed in testing) - it should show a selection of available games.  Once a game is selected to run it should take over the screen and the system should be paused.  The exact mechanism for this should be developed by the agent: spawning and handling processes, etc.  Each game will have a cover art and theme song - the system software needs to be paused when the game is run, of course.  We also need to handle game errors and crashes so that the system never freezes and needs to be restarted by facility staff.  We should catch and handle system freezes on our own, as a catch all.
+```bash
+python -m src.main
+```
 
-The arcade will have two joysticks (one for each player, or single player with two joystick control: move and aim, for example).  Next to each joystick will be three action buttons.  We also have a MENU/QUIT button which will be used to PAUSE the game / hold to force quit.
+Windowed on macOS, fullscreen on Linux (auto-detected).
 
-For development we'll use WASD and arrow keys for joystick control.  The production joysticks are basic arcade 4-way instead of analogue, so WASD and arrow keys will work.  We'll use FGT for our action buttons for player one, KLO for player 2 and ESC for MENU/QUIT.
+## Input Mapping
+
+| Function | Player 1 | Player 2 |
+|----------|----------|----------|
+| Joystick | W/A/S/D | Arrow keys |
+| Action 1 | F | K |
+| Action 2 | G | L |
+| Action 3 | T | O |
+| Menu/Quit | ESC | ESC |
+
+## Adding a Game
+
+See [docs/game-integration.md](docs/game-integration.md). Each game submodule must have a `game.json` at its root.
