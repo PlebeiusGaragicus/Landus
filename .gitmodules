@@ -1,3 +1,9 @@
 [submodule "games/game-donttouchme"]
 	path = games/game-donttouchme
 	url = git@github.com:PlebeiusGaragicus/game-donttouchme.git
+[submodule "games/game-allyourfrensarefishy"]
+	path = games/game-allyourfrensarefishy
+	url = git@github.com:PlebeiusGaragicus/game-allyourfrensarefishy.git
+[submodule "games/game-traverse"]
+	path = games/game-traverse
+	url = git@github.com:PlebeiusGaragicus/game-traverse.git

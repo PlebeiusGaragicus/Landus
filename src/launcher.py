@@ -35,6 +35,24 @@ class LauncherView(arcade.View):
         self._error_message: Optional[str] = None
         self._error_timer: float = 0.0
 
+        w = config.screen_width
+        h = config.screen_height
+        cx = w / 2
+        self._no_games_text = arcade.Text(
+            "No games found", cx, h / 2,
+            arcade.color.GRAY, 24, anchor_x="center", anchor_y="center",
+        )
+        self._no_games_hint = arcade.Text(
+            "Add games to the games/ directory", cx, h / 2 - 40,
+            arcade.color.DARK_GRAY, 14, anchor_x="center", anchor_y="center",
+        )
+        self._nav_hint = arcade.Text(
+            "[ A/D ] Navigate   [ F ] Launch", cx, 30,
+            (120, 120, 140), 12, anchor_x="center",
+        )
+        self._card_title = arcade.Text("", 0, 0, arcade.color.WHITE, 16, anchor_x="center", anchor_y="center")
+        self._error_text = arcade.Text("", cx, h - 40, arcade.color.WHITE, 14, anchor_x="center", anchor_y="center")
+
     def on_show_view(self):
         arcade.set_background_color((20, 20, 30))
         self.games = discover_games(self.config.games_dir)
@@ -122,16 +140,8 @@ class LauncherView(arcade.View):
         cy = h / 2
 
         if not self.games:
-            arcade.draw_text(
-                "No games found",
-                cx, cy, arcade.color.GRAY, 24,
-                anchor_x="center", anchor_y="center",
-            )
-            arcade.draw_text(
-                "Add games to the games/ directory",
-                cx, cy - 40, arcade.color.DARK_GRAY, 14,
-                anchor_x="center", anchor_y="center",
-            )
+            self._no_games_text.draw()
+            self._no_games_hint.draw()
             return
 
         for i, game in enumerate(self.games):
@@ -155,26 +165,18 @@ class LauncherView(arcade.View):
                 img_rect = arcade.XYWH(card_x, card_y + 15, img_w, img_h)
                 arcade.draw_texture_rect(tex, img_rect)
 
-            arcade.draw_text(
-                game.name,
-                card_x, card_y - ch / 2 + 20,
-                arcade.color.WHITE if is_selected else arcade.color.LIGHT_GRAY,
-                16 if is_selected else 13,
-                anchor_x="center", anchor_y="center",
-                bold=is_selected,
-            )
+            self._card_title.text = game.name
+            self._card_title.x = card_x
+            self._card_title.y = card_y - ch / 2 + 20
+            self._card_title.color = arcade.color.WHITE if is_selected else arcade.color.LIGHT_GRAY
+            self._card_title.font_size = 16 if is_selected else 13
+            self._card_title.bold = is_selected
+            self._card_title.draw()
 
-        arcade.draw_text(
-            "[ A/D ] Navigate   [ F ] Launch",
-            cx, 30, (120, 120, 140), 12,
-            anchor_x="center",
-        )
+        self._nav_hint.draw()
 
         if self._error_message:
             err_rect = arcade.XYWH(cx, h - 40, 500, 40)
             arcade.draw_rect_filled(err_rect, (180, 40, 40, 200))
-            arcade.draw_text(
-                self._error_message,
-                cx, h - 40, arcade.color.WHITE, 14,
-                anchor_x="center", anchor_y="center",
-            )
+            self._error_text.text = self._error_message
+            self._error_text.draw()
