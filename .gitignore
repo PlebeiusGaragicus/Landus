@@ -9,3 +9,5 @@ build/
 .eggs/
 *.log
 reference/
+
+.DS_Store

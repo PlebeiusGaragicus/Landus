@@ -42,7 +42,7 @@ def discover_games(games_dir: Path) -> list[GameInfo]:
     return found
 
 
-def launch_game(game: GameInfo, watchdog_timeout: float = 30.0) -> int:
+def launch_game(game: GameInfo, esc_kill_seconds: float = 3.0) -> int:
     """
     Spawn a game subprocess and block until it exits.
     Returns the exit code (0 = clean, non-zero = crash).
@@ -58,7 +58,7 @@ def launch_game(game: GameInfo, watchdog_timeout: float = 30.0) -> int:
         log.error("Failed to start %s: %s", game.name, exc)
         return 1
 
-    wd = Watchdog(proc, timeout=watchdog_timeout)
+    wd = Watchdog(proc, esc_kill_seconds=esc_kill_seconds)
     wd.start()
 
     try:
