@@ -1,1 +1,3 @@
 arcade
+pynput
+numpy
