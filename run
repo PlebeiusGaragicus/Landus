@@ -1,0 +1,45 @@
+#!/bin/bash
+# Run the Landus arcade system, or a single game directly.
+#
+#   ./run              # full launcher (game selection UI)
+#   ./run donttouchme  # launch games/game-donttouchme only
+#   ./run traverse     # launch games/game-traverse only
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+
+# Prefer the repo venv; create it if missing.
+VENV="$ROOT/.venv"
+PY="$VENV/bin/python"
+if [ ! -x "$PY" ]; then
+    echo "creating venv at .venv ..."
+    python3 -m venv "$VENV"
+fi
+
+if [ $# -eq 0 ]; then
+    # No args: run the launcher.
+    "$PY" -m pip install -q -r "$ROOT/requirements.txt"
+    cd "$ROOT"
+    exec "$PY" -m src.main
+fi
+
+GAME="$1"
+GAME_DIR="$ROOT/games/game-$GAME"
+if [ ! -d "$GAME_DIR" ]; then
+    # Also accept the full directory name, e.g. ./run game-traverse
+    GAME_DIR="$ROOT/games/$GAME"
+fi
+if [ ! -d "$GAME_DIR" ]; then
+    echo "error: no such game: $GAME" >&2
+    echo "available games:" >&2
+    ls "$ROOT/games" | grep '^game-' | sed 's/^game-/  /' >&2
+    exit 1
+fi
+
+# Install the game's requirements if it has its own; fall back to the system's.
+REQS="$GAME_DIR/requirements.txt"
+[ -f "$REQS" ] || REQS="$ROOT/requirements.txt"
+"$PY" -m pip install -q -r "$REQS"
+
+cd "$GAME_DIR"
+exec "$PY" src/main.py "${@:2}"
